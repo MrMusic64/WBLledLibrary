@@ -1,5 +1,6 @@
 package main.java.wblleds;
 
+import edu.wpi.first.math.MathUtil;
 /**
  * This is the controller for all needs regarding LEDS. Once you create your LED
  * object, you must create sections using {@link LedController#addSection} in

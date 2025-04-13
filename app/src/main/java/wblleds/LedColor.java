@@ -1,4 +1,6 @@
 package main.java.wblleds;
+
+import main.java.wblleds.LedController;
 /** This is a enum containing LED colors in the HSV format.
  * Colors must be pulled from this file to be compatible with the White Bear Lake LED Library.
  * 
@@ -96,7 +98,7 @@ public enum LedColor{
             case BLACK:
                 return 0;
             default:
-                return LedController.ledbrightness;
+                return LedController.ledBrightness;
         }
     }
 

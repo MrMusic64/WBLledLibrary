@@ -5,14 +5,12 @@ import java.util.List;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
-import wblleds.LedColor;
-import wblleds.LedSectionConfig;
+import main.java.wblleds.LedColor;
+import main.java.wblleds.LedSectionConfig;
 
 public class LedModes {
     public AddressableLED m_Led;
     private AddressableLEDBuffer ledBuffer;
-
-    private final Timer testTimer = new Timer();
 
     private final Timer strobeTimer = new Timer();
     private final Timer zipTimer = new Timer();
@@ -116,10 +114,10 @@ public class LedModes {
      */
     public void rainbow(String section, int speed) {
         // For designate range
-        for (int i = LedSectionConfig.getSectionStart(section); i < LedSectionConfig.getSectionStart(section); i++) {
+        for (int i = LedSectionConfig.getSectionStart(section); i < LedSectionConfig.getSectionEnd(section); i++) {
             // Calculate the hue - hue is easier for rainbows because the color
             // shape is a circle so only one value needs to precess
-            final var hue = (m_rainbowFirstPixelHue + (i * 180 / section.end())) % 180;
+            final var hue = (m_rainbowFirstPixelHue + (i * 180 / LedSectionConfig.getSectionEnd(section))) % 180;
             // Set the value
             ledBuffer.setHSV(i, hue, 255, brightnessLimit);
         }
@@ -139,7 +137,7 @@ public class LedModes {
      * @param duration    is the time it takes to cycle back to the original color
      */
     public void fade(String section, LedColor color1, LedColor color2, int cycleLength, double duration) {
-        double x = (1 - ((Timer.getFPGATimestamp() % duration) / duration)) * 2.0 * Math.PI;
+        double x = (1 - ((System.currentTimeMillis() % duration) / duration)) * 2.0 * Math.PI;
         double xDiffPerLed = (2.0 * Math.PI) / cycleLength;
         final var value = color1.value();
         for (int i = LedSectionConfig.getSectionStart(section); i < LedSectionConfig.getSectionEnd(section); i++) {
@@ -163,11 +161,11 @@ public class LedModes {
      * Pulses the lights to give them a breathing effect.
      * 
      * @param section  is the range you want to add the effect
-     * @param color    is the color that with breath
+     * @param color1    is the color that with breath
      * @param duration is the time it takes to go through 1 cycle
      */
     public void breath(String section, LedColor color1, double duration) {
-        double x = ((Timer.getFPGATimestamp() % duration) / duration) * 2.0 * Math.PI;
+        double x = ((System.currentTimeMillis() % duration) / duration) * 2.0 * Math.PI;
         double ratio = (Math.sin(x) + 1.0) / 2.0;
         LedColor color2 = LedColor.BLACK;
 
@@ -187,7 +185,7 @@ public class LedModes {
     /*
     private void stripes(List<Color> colors, int stripeLength, double duration) {
         int offset = 
-            (int) (Timer.getFPGATimestamp() % duration / duration * stripeLength * colors.size());
+            (int) (System.currentTimeMillis() % duration / duration * stripeLength * colors.size());
 
         for (int i = 0; i < length; i++) {
             int colorIndex = 
@@ -259,14 +257,14 @@ public class LedModes {
             }
         }
         // Only pass if the time calculated has passed
-        double speed = increment * (duration / (section.end() - section.start()));
+        double speed = increment * (duration / (LedSectionConfig.getSectionEnd(section) - LedSectionConfig.getSectionStart(section)));
         if (!fillTimer.advanceIfElapsed(speed))
             return;
 
         // increase to fill the strip
         m_range += increment;
         // check bounds
-        m_range %= section.end() - section.start();
+        m_range %= LedSectionConfig.getSectionEnd(section) - LedSectionConfig.getSectionStart(section);
     }
 
     /** 
@@ -285,7 +283,7 @@ public class LedModes {
 
         for (int i = LedSectionConfig.getSectionStart(section); i < LedSectionConfig.getSectionEnd(section); i++) {
                 if (i > start && i <= end) {
-                    ledBuffer.setHSV(i, color.hues(), 255, color.value());
+                    ledBuffer.setHSV(i, color1.hues(), 255, color1.value());
                 } else {
                     ledBuffer.setHSV(i, color2.hues(), 255, color2.value());
                 }

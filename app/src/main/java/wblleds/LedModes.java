@@ -19,6 +19,7 @@ public class LedModes {
 
     private static int brightnessLimit = 100;
     private int m_rainbowFirstPixelHue;
+    private int m_waveValue;
     private int m_range;
     private int zipIncrease;
     private int carnivalIncrease;
@@ -155,6 +156,29 @@ public class LedModes {
                 ledBuffer.setHSV(i, outputColor, 255, value);
             }
         }
+    }
+
+    /**
+     * Moves an area of color through the strip as a soft fade rather than an adrupt end like {@link LedModes#zip}
+     * 
+     * @param section is the range you want to add the effect
+     * @param speed   is the speed you want the lit section to run down the strip - 5 is
+     *                recommended for long distance, 3 is recommended for short
+     *                distances
+     */
+    public void wave(String section, LedColor color, int speed) {
+        // For designate range
+        for (int i = LedSectionConfig.getSectionStart(section); i < LedSectionConfig.getSectionEnd(section); i++) {
+            // Calculate the hue - hue is easier for rainbows because the color
+            // shape is a circle so only one value needs to precess
+            final var value = (m_waveValue + (i * color.value() / LedSectionConfig.getSectionEnd(section))) % color.value();
+            // Set the value
+            ledBuffer.setHSV(i, color.hues(), 255, value);
+        }
+        // Increase by to make the rainbow "move"
+        m_waveValue += speed;
+        // Check bounds
+        m_waveValue %= 180;
     }
 
     /**
